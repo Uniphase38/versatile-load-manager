@@ -1,0 +1,57 @@
+#!/bin/sh
+set -eu
+
+APP_DIR=${VLM_APP_DIR:-/data/victron-load-manager}
+CONFIG_FILE=${VLM_CONFIG:-$APP_DIR/config.yaml}
+SERVICE_DIR=${VLM_SERVICE_DIR:-$APP_DIR/service}
+SERVICE_LINK=${VLM_SERVICE_LINK:-/service/victron-load-manager}
+export PYTHONPATH="$APP_DIR/vendor:$APP_DIR/src"
+
+usage() {
+    cat <<'EOF'
+Versatile Load Manager
+
+Usage:
+  /data/vlm enable             Start VLM and enable automatic start after reboot
+  /data/vlm disable            Stop VLM and disable automatic start after reboot
+  /data/vlm check              Check configuration and devices without commands
+  /data/vlm faults             List safety-locked loads
+  /data/vlm unlock <load>      Confirm and clear one safety lockout
+  /data/vlm --help             Show this help
+EOF
+}
+
+case "${1:-}" in
+    enable)
+        [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+        rm -f "$SERVICE_DIR/down"
+        svc -u "$SERVICE_LINK"
+        echo "VLM enabled now and after reboot"
+        ;;
+    disable)
+        [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+        : > "$SERVICE_DIR/down"
+        svc -d "$SERVICE_LINK"
+        echo "VLM disabled now and after reboot"
+        ;;
+    check)
+        [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+        exec python3 -m victron_load_manager check --config "$CONFIG_FILE"
+        ;;
+    faults)
+        [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+        exec python3 -m victron_load_manager faults --config "$CONFIG_FILE"
+        ;;
+    unlock)
+        [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+        exec python3 -m victron_load_manager unlock "$2" --config "$CONFIG_FILE"
+        ;;
+    -h|--help|"")
+        usage
+        ;;
+    *)
+        echo "Unknown command: $1" >&2
+        usage >&2
+        exit 2
+        ;;
+esac

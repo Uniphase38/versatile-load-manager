@@ -1,0 +1,11 @@
+# Exact pure-Python release dependencies for the offline Venus package.
+# PyYAML is handled separately by build_vendor.py so only its pure yaml/
+# package is copied from the source distribution.
+pymodbus==2.5.3
+requests==2.32.3
+urllib3==2.2.3
+certifi==2024.8.30
+charset-normalizer==3.4.0
+idna==3.10
+six==1.16.0
+pyserial==3.5

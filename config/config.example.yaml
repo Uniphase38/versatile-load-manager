@@ -1,0 +1,231 @@
+cerbo:
+  # "localhost" when running directly on a GX device, otherwise its IP/hostname.
+  host: localhost
+  port: 502
+  timeout_s: 3
+  unit_id_scan_start: 1
+  unit_id_scan_end: 247
+  service_cache_file: /var/lib/victron-load-manager/service_ids.json
+
+  # Keep "auto" for portable installs. Explicit IDs remain available for
+  # diagnostics or unusual systems.
+  system_unit_id: auto
+  vebus_unit_id: auto
+
+battery:
+  # These thresholds govern VLM's solar-window decisions. During off-peak
+  # catch-up, an unfinished required load is allowed to continue below this
+  # reserve; native ESS then preserves the battery and the grid supplies it.
+  soc_min: 40
+  soc_max: 90
+  soc_on: 70
+  soc_off: 40
+  # A solar charge-surplus start requires soc_min plus this margin, preventing
+  # an immediate stop when SOC telemetry moves by a fraction of one percent.
+  load_start_hysteresis_soc: 1
+  # Installation-wide protection for the main battery cables and fuse. This
+  # must not exceed the safe continuous current of the weakest shared element.
+  max_charge_current_a: 100
+  # Below target: the protected ceiling above. At target: 0 A. Charging is
+  # re-enabled only after SOC falls by this amount.
+  charge_hysteresis_soc: 1
+  # Independent safety lock for DVCC writes. Keep false during observation,
+  # even when Shelly control is already enabled.
+  control_enabled: false
+  # A real top balance must let the BMS reach and recalibrate at 100%.
+  balance_target_soc: 100
+  balance_interval_days: 30
+  # Keep the protected DVCC ceiling open for this long at 100%; the BMS remains
+  # responsible
+  # for modulating the actual current while its cells equalise.
+  balance_hold_s: 3600
+  # Optional grid catch-up for a balance which has waited too long for solar.
+  # Disabled by default. These are installation characteristics, never guessed.
+  balance_hc_enabled: false
+  balance_solar_defer_days: 14
+  balance_good_solar_day_kwh: 15
+  # Opt-in solar-first anticipation: set to 3 to allow a good day in the three
+  # calendar days before the due date. Requires a valid PV forecast and live
+  # charging/curtailment. Defer managed loads until the balance hold completes.
+  balance_advance_days: 0
+  # If the target has not been reached, release loads at this local time.
+  # An already-started hold may finish within the solar window.
+  balance_solar_deadline: "16:00"
+  # Monitored load trials on confirmed curtailment during solar balancing.
+  # Restore battery priority if its charge falls or grid import grows.
+  balance_surplus_enabled: false
+  balance_surplus_charge_tolerance_w: 150
+  # On the day of an actual successful hold, finish unmet load targets with
+  # bounded battery support, including after solar_end, but never into HC.
+  post_balance_support_enabled: false
+  post_balance_min_soc: 90
+  post_balance_max_discharge_w: 3000
+  post_balance_extension_s: 10800
+  usable_capacity_kwh: 0
+  max_grid_charge_power_w: 0
+  night_base_load_w: 0
+  # Reserve the final part of the HC window for taper/hold and uncertainty.
+  balance_hc_safety_margin_s: 1800
+  # Optional bootstrap only. Once runtime.json contains balancing history, the
+  # persisted completion date takes precedence. Omit on a new installation to
+  # start the first 30-day interval today.
+  # balance_reference_date: "2026-08-18"
+
+schedule:
+  # IANA timezone used for every schedule, daily reset and log timestamp.
+  # Change this to the installation's local timezone.
+  timezone: Europe/Paris
+  solar_start: "10:00"
+  solar_end: "18:00"
+  off_peak_start: "22:00"
+  daily_reset: "06:00"
+
+# Optional EDF Tempo observation. This information is logged and cached, but
+# does not influence relays, battery targets or DVCC at this stage.
+tempo:
+  enabled: false
+  provider: api-couleur-tempo.fr
+  cache_file: /data/victron-load-manager/tempo.json
+  refresh_interval_s: 3600
+  retry_interval_s: 300
+  fresh_for_s: 7200
+  timeout_s: 5
+
+# Optional PV forecast. With balance_advance_days > 0 it helps select a solar
+# balancing day; otherwise it only informs logging and the HC planner.
+# Azimuth uses geographic compass degrees:
+# 0=north, 90=east, 180=south, 270=west. Replace the example site values.
+solar_forecast:
+  enabled: false
+  latitude: 45.0
+  longitude: 4.0
+  peak_power_kwp: 8.0
+  tilt_deg: 24
+  azimuth_deg: 217
+  performance_ratio: 0.85
+  refresh_interval_s: 10800
+  retry_interval_s: 900
+  max_age_s: 43200
+  timeout_s: 3
+  cache_file: /data/victron-load-manager/solar_forecast.json
+
+# Communication watchdog for safety-critical Cerbo telemetry. New starts are
+# blocked after any error. VLM enters SAFE after three consecutive failures,
+# stops loads it owns and attempts to restore battery controls. At ten failures
+# it exits so runit can recreate the process and Modbus connection.
+watchdog:
+  safe_after_errors: 3
+  recovery_cycles: 2
+  restart_after_errors: 10
+
+loop_interval_s: 10
+# Wait after a confirmed start before admitting another load. This delay is
+# independent of loop_interval_s.
+start_settle_s: 30
+# Full telemetry heartbeat. Commands and state changes are always logged.
+status_log_interval_s: 60
+max_ac_power_w: 6500
+# Additional start-only margin. Active loads are still shed at max_ac_power_w.
+ac_start_margin_w: 500
+
+# Solar starts require persistent native curtailment with neither meaningful
+# grid import nor battery discharge. Persistent deficit stops a flexible load.
+surplus_confirm_cycles: 2
+deficit_confirm_cycles: 2
+grid_import_tolerance_w: 100
+battery_discharge_tolerance_w: 200
+# Preserve at least this much visible power for continued battery charging
+# when starting a flexible load before PV curtailment begins.
+battery_charge_reserve_w: 1000
+dry_run: true
+
+# Two independent locks. A relay is commanded only when control_enabled is true,
+# dry_run is false, and its exact name appears in managed_loads.
+control_enabled: false
+managed_loads:
+  - MainCumulus
+  - SmallCumulus
+  - PoolPump
+state_file: /data/victron-load-manager/runtime.json
+# Process lock. Keep this default on Venus OS; an unprivileged PC test can use
+# /tmp/victron-load-manager-pc.lock in its separate observation configuration.
+lock_file: /var/run/victron-load-manager.lock
+
+loads:
+  - name: MainCumulus
+    host: main-cumulus.local
+    switch_id: 0
+    rated_w: 2200
+    priority: 10
+    min_daily_runtime_h: 2
+    # Avoid rapid relay cycling after a transient while still allowing the
+    # thermostat and hard safety rules to stop immediately.
+    min_on_time_s: 120
+    min_off_time_s: 120
+    completion_mode: thermostat
+
+  - name: SmallCumulus
+    host: small-cumulus.local
+    switch_id: 0
+    rated_w: 1200
+    # A commanded start is accepted only after measured power reaches this
+    # threshold within the timeout. Omit the threshold to use 50% of rated_w.
+    min_active_power_w: 800
+    power_confirm_timeout_s: 3
+    probe_retry_delay_s: 1800
+    # A relay ON at 0 W means that the water thermostat is satisfied. Mark the
+    # daily heat cycle complete and do not offer it again before the reset.
+    probe_failure_mode: cooldown
+    # Runtime is a minimum target. Once reached, keep heating during an
+    # allowed energy window until the thermostat opens.
+    completion_mode: thermostat
+    priority: 20
+    min_daily_runtime_h: 2
+    min_on_time_s: 120
+    min_off_time_s: 120
+
+  - name: PoolPump
+    host: pool-pump.local
+    switch_id: 0
+    rated_w: 1300
+    # Short startup peak used only for the AC headroom admission check.
+    # Once running, rated_w remains the expected steady consumption.
+    startup_power_w: 3000
+    priority: 30
+    # Seasonal desired filtration duration. At least half is guaranteed by
+    # off-peak catch-up; the rest remains solar-only. Numeric month keys avoid
+    # locale-dependent names. The selected month changes at the daily reset.
+    target_runtime_h_by_month:
+      1: 2
+      2: 2
+      3: 4
+      4: 6
+      5: 7
+      6: 8
+      7: 8
+      8: 8
+      9: 6
+      10: 4
+      11: 2
+      12: 2
+    required_runtime_ratio: 0.5
+    # Once the required half is secured, allow the last hour of the desired
+    # target to finish under tightly bounded battery support. The one-hour
+    # grace may extend past solar_end, but AC safety and min_on_time still apply.
+    # If more than one hour remains and the full target is unreachable, the
+    # same guards allow best-effort target_progress during the last hour.
+    target_finish_enabled: true
+    target_finish_max_remaining_h: 1
+    target_finish_min_soc: 80
+    target_finish_max_battery_discharge_w: 500
+    target_finish_grace_s: 3600
+    # Protect the motor from rapid cycling. Hard safety stops still override
+    # the minimum ON time.
+    min_on_time_s: 900
+    min_off_time_s: 300
+    # A motor commanded ON at 0 W is a fault: keep it locked out until the
+    # fault is inspected and its persistent lockout is explicitly cleared.
+    probe_failure_mode: lockout
+    completion_mode: runtime
+    enabled: true
+

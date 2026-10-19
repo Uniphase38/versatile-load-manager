@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+*.log
+*.db
+*.sqlite*
+*.json
+.venv/
+venv/
+.env
+config/config.yaml
+dist/
+build/
+
+# Local forecast comparison history and its collector lock/cache
+data/forecast_daily.csv*
+
+# Local IDE, site-specific configurations and diagnostics
+.idea/
+config/config-*.yaml
+logs/
+cerbo_vitals_*.csv
+vlm-logs-*.tar.gz

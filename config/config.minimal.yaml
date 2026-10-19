@@ -1,0 +1,43 @@
+# Minimal safe starting point for a VLM installation on a Cerbo GX.
+# Replace every value marked REVIEW before enabling any command.
+
+cerbo:
+  host: localhost
+
+schedule:
+  timezone: Europe/Paris
+  solar_start: "10:00"
+  solar_end: "18:00"
+  off_peak_start: "22:00"
+  daily_reset: "06:00"
+
+battery:
+  # REVIEW: choose thresholds appropriate for the installation.
+  soc_min: 40
+  soc_max: 90
+  soc_on: 70
+  soc_off: 40
+  # REVIEW: safe continuous current of the weakest shared cable, fuse or busbar.
+  max_charge_current_a: 100
+  control_enabled: false
+
+# REVIEW: installation AC limit, not the inverter marketing power.
+max_ac_power_w: 4000
+ac_start_margin_w: 500
+
+# Global write lock and Shelly-control lock. Keep both closed during observation.
+dry_run: true
+control_enabled: false
+managed_loads: []
+
+loads:
+  - name: ExampleLoad
+    # REVIEW: Shelly hostname or fixed address.
+    host: example-load.local
+    rated_w: 1000
+    priority: 10
+    min_daily_runtime_h: 1
+    min_on_time_s: 120
+    min_off_time_s: 120
+    completion_mode: runtime
+    enabled: true

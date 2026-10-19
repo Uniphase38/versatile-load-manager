@@ -1,0 +1,5 @@
+#!/bin/sh
+APP_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+LOG_DIR=$APP_DIR/logs
+mkdir -p "$LOG_DIR"
+exec multilog s1000000 n10 "$LOG_DIR"
