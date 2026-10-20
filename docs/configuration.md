@@ -3,7 +3,7 @@
 For worked examples showing how these values combine into real decisions, see
 [Understanding VLM decisions](understanding-vlm-decisions.md).
 
-The installed configuration is `/data/victron-load-manager/config.yaml`. The
+The installed configuration is `/data/versatile-load-manager/config.yaml`. The
 repository example is `config/config.example.yaml`. `install.sh` creates the
 file only when it does not already exist.
 
@@ -11,13 +11,13 @@ After editing, validate by running one diagnostic command or one dry-run cycle
 before enabling real commands:
 
 ```sh
-PYTHONPATH=/data/victron-load-manager/vendor:/data/victron-load-manager/src \
-  python3 -m victron_load_manager diagnose \
-  --config /data/victron-load-manager/config.yaml
+PYTHONPATH=/data/versatile-load-manager/vendor:/data/versatile-load-manager/src \
+  python3 -m versatile_load_manager diagnose \
+  --config /data/versatile-load-manager/config.yaml
 
-PYTHONPATH=/data/victron-load-manager/vendor:/data/victron-load-manager/src \
-  python3 -m victron_load_manager run \
-  --config /data/victron-load-manager/config.yaml --once
+PYTHONPATH=/data/versatile-load-manager/vendor:/data/versatile-load-manager/src \
+  python3 -m versatile_load_manager run \
+  --config /data/versatile-load-manager/config.yaml --once
 ```
 
 ## Independent control locks
@@ -319,8 +319,8 @@ best-effort progress begins no earlier than 18:00 and ends no later than 19:00.
 VLM reads YAML at process startup. After a deliberate configuration change:
 
 ```sh
-svc -t /service/victron-load-manager
-tail -f /data/victron-load-manager/logs/current
+svc -t /service/versatile-load-manager
+tail -f /data/log/versatile-load-manager/current
 ```
 
 Do not delete `runtime.json` merely to reload configuration. It contains daily
