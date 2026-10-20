@@ -10,7 +10,7 @@ except ModuleNotFoundError:
     requests.exceptions = SimpleNamespace(RequestException=Exception)
     sys.modules["requests"] = requests
 
-from victron_load_manager.shelly import (
+from versatile_load_manager.shelly import (
     ShellyClient,
     ShellyCommandResult,
     ShellyError,

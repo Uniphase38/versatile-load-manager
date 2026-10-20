@@ -9,8 +9,8 @@ from unittest.mock import Mock, patch
 from urllib.error import HTTPError
 from zoneinfo import ZoneInfo
 
-from victron_load_manager.config import ScheduleConfig, SolarForecastConfig
-from victron_load_manager.forecast_report import (
+from versatile_load_manager.config import ScheduleConfig, SolarForecastConfig
+from versatile_load_manager.forecast_report import (
     CsvLock, VrmClient, complete_row, daily_energy, day_bounds, read_rows, snapshot, tick,
     write_rows,
 )
@@ -156,7 +156,7 @@ class ReportTests(unittest.TestCase):
                                    fetched_at=evening, source="open-meteo")
         with TemporaryDirectory() as directory:
             path = Path(directory) / "report.csv"
-            with patch("victron_load_manager.forecast_report.SolarForecastClient") as client:
+            with patch("versatile_load_manager.forecast_report.SolarForecastClient") as client:
                 client.return_value.read.return_value = forecast
                 self.assertTrue(tick(path, config, vrm, evening, time(20), time(8)))
                 self.assertTrue(tick(path, config, vrm, evening, time(20), time(8)))

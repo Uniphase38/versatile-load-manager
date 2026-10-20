@@ -5,18 +5,18 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from victron_load_manager.config import (
+from versatile_load_manager.config import (
     AppConfig, BatteryConfig, CerboConfig, LoadConfig, ScheduleConfig,
 )
-from victron_load_manager.battery import BatteryRuntime
-from victron_load_manager.controller import (
+from versatile_load_manager.battery import BatteryRuntime
+from versatile_load_manager.controller import (
     LoadController, RuntimeStore, SolarFlowTracker,
 )
-from victron_load_manager.policy import Action, LoadState, Reason
-from victron_load_manager.modbus import DcPvState, ModbusError, SolarCurtailment
-from victron_load_manager.tempo import TempoColour
-from victron_load_manager.shelly import ShellyCommandResult, ShellyStatus
-from victron_load_manager.watchdog import WatchdogState
+from versatile_load_manager.policy import Action, LoadState, Reason
+from versatile_load_manager.modbus import DcPvState, ModbusError, SolarCurtailment
+from versatile_load_manager.tempo import TempoColour
+from versatile_load_manager.shelly import ShellyCommandResult, ShellyStatus
+from versatile_load_manager.watchdog import WatchdogState
 
 
 class FakeCerbo:

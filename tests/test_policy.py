@@ -2,14 +2,14 @@ import unittest
 from dataclasses import replace
 from datetime import datetime
 
-from victron_load_manager.config import (
+from versatile_load_manager.config import (
     AppConfig,
     BatteryConfig,
     CerboConfig,
     LoadConfig,
     ScheduleConfig,
 )
-from victron_load_manager.policy import (
+from versatile_load_manager.policy import (
     Action,
     LoadPolicy,
     LoadState,

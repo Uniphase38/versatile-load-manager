@@ -52,12 +52,12 @@ class VendorValidationTests(unittest.TestCase):
                 capture_output=True,
                 text=True,
             )
-            archive = output / "victron-load-manager-0.1.0-venus.tar.gz"
+            archive = output / "versatile-load-manager-0.1.0-venus.tar.gz"
             self.assertTrue(archive.is_file())
             self.assertTrue(Path(str(archive) + ".sha256").is_file())
             with tarfile.open(archive, "r:gz") as package:
                 names = package.getnames()
-            prefix = "victron-load-manager-0.1.0-venus"
+            prefix = "versatile-load-manager-0.1.0-venus"
             self.assertIn(prefix + "/install.sh", names)
             self.assertIn(prefix + "/vendor/yaml/__init__.py", names)
 

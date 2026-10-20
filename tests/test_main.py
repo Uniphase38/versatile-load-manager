@@ -6,20 +6,20 @@ from pathlib import Path
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
-from victron_load_manager.battery import (
+from versatile_load_manager.battery import (
     BalanceStatus, BatteryDecision, BatteryRuntime,
 )
-from victron_load_manager.config import AppConfig, BatteryConfig, CerboConfig, LoadConfig, ScheduleConfig
-from victron_load_manager.controller import RuntimeStore
-from victron_load_manager.main import (
+from versatile_load_manager.config import AppConfig, BatteryConfig, CerboConfig, LoadConfig, ScheduleConfig
+from versatile_load_manager.controller import RuntimeStore
+from versatile_load_manager.main import (
     InstanceAlreadyRunning, _InstanceLock, _ShutdownRequested,
     _duration_text, _log_interval_elapsed, _run_log, _runtime_text,
     _service_running, main,
 )
-from victron_load_manager.modbus import (
+from versatile_load_manager.modbus import (
     AcPvLimit, DcPvState, ModbusError, ServiceUnitIds, SolarCurtailment,
 )
-from victron_load_manager.shelly import ShellyCommandResult, ShellyStatus
+from versatile_load_manager.shelly import ShellyCommandResult, ShellyStatus
 
 
 class FakeCerbo:
@@ -65,8 +65,8 @@ class FakeCerbo:
 
 
 class DiagnosticCommandTests(unittest.TestCase):
-    @patch("victron_load_manager.main.CerboModbus", FakeCerbo)
-    @patch("victron_load_manager.main._pymodbus_version", return_value="2.5.3")
+    @patch("versatile_load_manager.main.CerboModbus", FakeCerbo)
+    @patch("versatile_load_manager.main._pymodbus_version", return_value="2.5.3")
     def test_diagnose_defaults_to_localhost_and_is_read_only(self, _version):
         output = io.StringIO()
         with patch("sys.stdout", output):
@@ -92,10 +92,10 @@ class DiagnosticCommandTests(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertIn("--host and --config cannot be used together", errors.getvalue())
 
-    @patch("victron_load_manager.main.CerboModbus", FakeCerbo)
-    @patch("victron_load_manager.main._pymodbus_version", return_value="2.5.3")
-    @patch("victron_load_manager.main.ShellyClient")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.CerboModbus", FakeCerbo)
+    @patch("versatile_load_manager.main._pymodbus_version", return_value="2.5.3")
+    @patch("versatile_load_manager.main.ShellyClient")
+    @patch("versatile_load_manager.main.load_config")
     def test_config_diagnoses_enabled_shelly_loads(
         self, load_config_mock, shelly_client, _version
     ):
@@ -117,10 +117,10 @@ class DiagnosticCommandTests(unittest.TestCase):
         self.assertIn("output=ON", output.getvalue())
         self.assertIn("power=2198.0 W [OK]", output.getvalue())
 
-    @patch("victron_load_manager.main.CerboModbus", FakeCerbo)
-    @patch("victron_load_manager.main._pymodbus_version", return_value="2.5.3")
-    @patch("victron_load_manager.main.ShellyClient")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.CerboModbus", FakeCerbo)
+    @patch("versatile_load_manager.main._pymodbus_version", return_value="2.5.3")
+    @patch("versatile_load_manager.main.ShellyClient")
+    @patch("versatile_load_manager.main.load_config")
     def test_meter_only_device_fails_load_validation(
         self, load_config_mock, shelly_client, _version
     ):
@@ -140,9 +140,9 @@ class DiagnosticCommandTests(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertIn("NOT SWITCHABLE", output.getvalue())
 
-    @patch("victron_load_manager.main.CerboModbus", FakeCerbo)
-    @patch("victron_load_manager.main._pymodbus_version", return_value="2.5.3")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.CerboModbus", FakeCerbo)
+    @patch("versatile_load_manager.main._pymodbus_version", return_value="2.5.3")
+    @patch("versatile_load_manager.main.load_config")
     def test_check_reports_safe_mode_and_remains_read_only(
         self, load_config_mock, _version
     ):
@@ -166,16 +166,16 @@ class DiagnosticCommandTests(unittest.TestCase):
 
 
 class LockoutCommandTests(unittest.TestCase):
-    @patch("victron_load_manager.main.subprocess.run")
+    @patch("versatile_load_manager.main.subprocess.run")
     def test_service_state_accepts_svstat_path_prefix(self, run_command):
         run_command.return_value = unittest.mock.Mock(
             returncode=0,
-            stdout="/service/victron-load-manager: up (pid 42) 10 seconds\n",
+            stdout="/service/versatile-load-manager: up (pid 42) 10 seconds\n",
             stderr="",
         )
-        self.assertTrue(_service_running("/service/victron-load-manager"))
+        self.assertTrue(_service_running("/service/versatile-load-manager"))
 
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.load_config")
     def test_faults_lists_motor_lockout(self, load_config_mock):
         with tempfile.TemporaryDirectory() as directory:
             state_file = str(Path(directory) / "runtime.json")
@@ -208,7 +208,7 @@ class LockoutCommandTests(unittest.TestCase):
             )
             self.assertIn("/data/vlm unlock <load>", output.getvalue())
 
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.load_config")
     def test_faults_reports_empty_state(self, load_config_mock):
         with tempfile.TemporaryDirectory() as directory:
             load_config_mock.return_value = AppConfig(
@@ -224,10 +224,10 @@ class LockoutCommandTests(unittest.TestCase):
         self.assertEqual(result, 0)
         self.assertEqual(output.getvalue(), "No safety lockouts.\n")
 
-    @patch("victron_load_manager.main.subprocess.run")
-    @patch("victron_load_manager.main._wait_service_down")
-    @patch("victron_load_manager.main._service_running", return_value=True)
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.subprocess.run")
+    @patch("versatile_load_manager.main._wait_service_down")
+    @patch("versatile_load_manager.main._service_running", return_value=True)
+    @patch("versatile_load_manager.main.load_config")
     def test_unlock_pauses_service_and_preserves_runtime(
         self, load_config_mock, _running, wait_down, run_command
     ):
@@ -254,7 +254,7 @@ class LockoutCommandTests(unittest.TestCase):
             with patch("sys.stdout", output), patch("builtins.input", return_value="oui"):
                 result = main([
                     "unlock", "PoolPump", "--config", "config.yaml",
-                    "--service", "/service/victron-load-manager",
+                    "--service", "/service/versatile-load-manager",
                 ])
 
             self.assertEqual(result, 0)
@@ -264,16 +264,16 @@ class LockoutCommandTests(unittest.TestCase):
             self.assertEqual(store.load(now)["PoolPump"], 0.5)
             self.assertEqual(run_command.call_args_list, [
                 unittest.mock.call(
-                    ["svc", "-d", "/service/victron-load-manager"], check=True
+                    ["svc", "-d", "/service/versatile-load-manager"], check=True
                 ),
                 unittest.mock.call(
-                    ["svc", "-u", "/service/victron-load-manager"], check=True
+                    ["svc", "-u", "/service/versatile-load-manager"], check=True
                 ),
             ])
-            wait_down.assert_called_once_with("/service/victron-load-manager")
+            wait_down.assert_called_once_with("/service/versatile-load-manager")
 
-    @patch("victron_load_manager.main._service_running")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main._service_running")
+    @patch("versatile_load_manager.main.load_config")
     def test_unlock_cancelled_before_service_is_touched(
         self, load_config_mock, service_running
     ):
@@ -302,8 +302,8 @@ class LockoutCommandTests(unittest.TestCase):
 
 
 class LoadTestCommandTests(unittest.TestCase):
-    @patch("victron_load_manager.main.ShellyClient")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.ShellyClient")
+    @patch("versatile_load_manager.main.load_config")
     def test_load_test_is_hard_wired_to_dry_run(self, load_config_mock, shelly_client):
         load_config_mock.return_value = AppConfig(
             cerbo=CerboConfig(host="localhost"),
@@ -328,20 +328,20 @@ class LoadTestCommandTests(unittest.TestCase):
 
 class LoadCycleCommandTests(unittest.TestCase):
     @staticmethod
-    def _config(dry_run=False):
+    def _config(dry_run=False, name="SmallCumulus"):
         return AppConfig(
             cerbo=CerboConfig(host="localhost"),
             battery=BatteryConfig(),
             schedule=ScheduleConfig(),
-            loads=(LoadConfig("SmallCumulus", "cumulus.local", 1600),),
+            loads=(LoadConfig(name, "cumulus.local", 1600),),
             max_ac_power_w=6000,
             dry_run=dry_run,
         )
 
-    @patch("victron_load_manager.main.time.sleep")
-    @patch("victron_load_manager.main.CerboModbus", FakeCerbo)
-    @patch("victron_load_manager.main.ShellyClient")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.time.sleep")
+    @patch("versatile_load_manager.main.CerboModbus", FakeCerbo)
+    @patch("versatile_load_manager.main.ShellyClient")
+    @patch("versatile_load_manager.main.load_config")
     def test_guarded_cycle_turns_on_and_always_back_off(
         self, load_config_mock, shelly_client, sleep
     ):
@@ -369,9 +369,9 @@ class LoadCycleCommandTests(unittest.TestCase):
         sleep.assert_called_once_with(1)
         self.assertIn("commissioning cycle OK", output.getvalue())
 
-    @patch("victron_load_manager.main.CerboModbus", FakeCerbo)
-    @patch("victron_load_manager.main.ShellyClient")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.CerboModbus", FakeCerbo)
+    @patch("versatile_load_manager.main.ShellyClient")
+    @patch("versatile_load_manager.main.load_config")
     def test_guarded_cycle_reserves_startup_power(
         self, load_config_mock, shelly_client
     ):
@@ -401,10 +401,10 @@ class LoadCycleCommandTests(unittest.TestCase):
         self.assertIn("projected AC power 6091 W exceeds limit 6000 W", errors.getvalue())
         shelly_client.return_value.set_output.assert_not_called()
 
-    @patch("victron_load_manager.main.time.sleep")
-    @patch("victron_load_manager.main.CerboModbus", FakeCerbo)
-    @patch("victron_load_manager.main.ShellyClient")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.time.sleep")
+    @patch("versatile_load_manager.main.CerboModbus", FakeCerbo)
+    @patch("versatile_load_manager.main.ShellyClient")
+    @patch("versatile_load_manager.main.load_config")
     def test_low_power_still_forces_off(
         self, load_config_mock, shelly_client, sleep
     ):
@@ -430,7 +430,7 @@ class LoadCycleCommandTests(unittest.TestCase):
         self.assertEqual(shelly_client.return_value.set_output.call_count, 2)
         self.assertEqual(sleep.call_count, 5)
 
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.load_config")
     def test_cycle_refuses_dry_run_configuration(self, load_config_mock):
         load_config_mock.return_value = self._config(dry_run=True)
         errors = io.StringIO()
@@ -442,17 +442,30 @@ class LoadCycleCommandTests(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertIn("dry_run: false", errors.getvalue())
 
-    @patch("victron_load_manager.main.load_config")
-    def test_cycle_rejects_other_load_even_if_confirmed(self, load_config_mock):
-        load_config_mock.return_value = self._config()
-        errors = io.StringIO()
-        with patch("sys.stderr", errors):
+    @patch("versatile_load_manager.main.time.sleep")
+    @patch("versatile_load_manager.main.CerboModbus", FakeCerbo)
+    @patch("versatile_load_manager.main.ShellyClient")
+    @patch("versatile_load_manager.main.load_config")
+    def test_cycle_accepts_any_configured_load(
+        self, load_config_mock, shelly_client, sleep
+    ):
+        load_config_mock.return_value = self._config(name="ExampleLoad")
+        shelly_client.return_value.read_status.side_effect = [
+            ShellyStatus("cumulus.local", 2, "SNSW", False, 0.0),
+            ShellyStatus("cumulus.local", 2, "SNSW", True, 1600.0),
+        ]
+        shelly_client.return_value.set_output.side_effect = [
+            ShellyCommandResult("cumulus.local", True, False, True, True, False),
+            ShellyCommandResult("cumulus.local", False, True, False, True, False),
+        ]
+        with patch("sys.stdout", io.StringIO()):
             result = main([
-                "load-cycle", "MainCumulus", "--config", "config.yaml",
-                "--confirm", "MainCumulus",
+                "load-cycle", "ExampleLoad", "--config", "config.yaml",
+                "--confirm", "ExampleLoad", "--seconds", "1",
             ])
-        self.assertEqual(result, 1)
-        self.assertIn("restricted to SmallCumulus", errors.getvalue())
+        self.assertEqual(result, 0)
+        self.assertEqual(shelly_client.return_value.set_output.call_count, 2)
+        sleep.assert_called_once_with(1)
 
 
 class RunCommandTests(unittest.TestCase):
@@ -471,9 +484,9 @@ class RunCommandTests(unittest.TestCase):
             with _InstanceLock(path):
                 pass
 
-    @patch("victron_load_manager.main._run_locked", return_value=0)
-    @patch("victron_load_manager.main._InstanceLock")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main._run_locked", return_value=0)
+    @patch("versatile_load_manager.main._InstanceLock")
+    @patch("versatile_load_manager.main.load_config")
     def test_run_uses_configured_lock_file(
         self, load_config_mock, lock_class, _run_locked
     ):
@@ -487,8 +500,8 @@ class RunCommandTests(unittest.TestCase):
         self.assertEqual(main(["run", "--config", "config.yaml", "--once"]), 0)
         lock_class.assert_called_once_with("/tmp/vlm-pc.lock")
 
-    @patch("victron_load_manager.main._InstanceLock.acquire")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main._InstanceLock.acquire")
+    @patch("versatile_load_manager.main.load_config")
     def test_second_instance_is_refused_before_controller_construction(
         self, load_config_mock, acquire
     ):
@@ -501,7 +514,7 @@ class RunCommandTests(unittest.TestCase):
         acquire.side_effect = InstanceAlreadyRunning("already running")
         errors = io.StringIO()
         with patch("sys.stderr", errors), patch(
-            "victron_load_manager.main.LoadController"
+            "versatile_load_manager.main.LoadController"
         ) as controller_class:
             result = main(["run", "--config", "config.yaml", "--once"])
 
@@ -558,8 +571,8 @@ class RunCommandTests(unittest.TestCase):
             "2026-09-16T07:00:00+02:00 test line\n",
         )
 
-    @patch("victron_load_manager.main.LoadController")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.LoadController")
+    @patch("versatile_load_manager.main.load_config")
     def test_once_always_runs_shutdown_guard(self, load_config_mock, controller_class):
         load_config_mock.return_value = AppConfig(
             cerbo=CerboConfig(host="localhost"),
@@ -613,8 +626,8 @@ class RunCommandTests(unittest.TestCase):
             output.getvalue(),
         )
 
-    @patch("victron_load_manager.main.LoadController")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.LoadController")
+    @patch("versatile_load_manager.main.load_config")
     def test_termination_signal_runs_shutdown_guard(self, load_config_mock, controller_class):
         load_config_mock.return_value = AppConfig(
             cerbo=CerboConfig(host="localhost"),
@@ -635,9 +648,9 @@ class RunCommandTests(unittest.TestCase):
         controller_class.return_value.stop_managed.assert_called_once_with()
         self.assertIn("Shutdown requested: SIGTERM", output.getvalue())
 
-    @patch("victron_load_manager.main.time.sleep")
-    @patch("victron_load_manager.main.LoadController")
-    @patch("victron_load_manager.main.load_config")
+    @patch("versatile_load_manager.main.time.sleep")
+    @patch("versatile_load_manager.main.LoadController")
+    @patch("versatile_load_manager.main.load_config")
     def test_ten_modbus_failures_request_runit_restart_without_cleanup(
         self, load_config_mock, controller_class, sleep
     ):

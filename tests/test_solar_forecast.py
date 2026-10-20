@@ -7,8 +7,8 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from zoneinfo import ZoneInfo
 
-from victron_load_manager.config import SolarForecastConfig
-from victron_load_manager.solar_forecast import (
+from versatile_load_manager.config import SolarForecastConfig
+from versatile_load_manager.solar_forecast import (
     SolarForecastClient, _open_meteo_azimuth,
 )
 

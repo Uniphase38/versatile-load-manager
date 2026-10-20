@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from victron_load_manager.watchdog import CommunicationWatchdog, WatchdogState
+from versatile_load_manager.watchdog import CommunicationWatchdog, WatchdogState
 
 
 def test_startup_requires_two_healthy_cycles():

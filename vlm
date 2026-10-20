@@ -1,10 +1,10 @@
 #!/bin/sh
 set -eu
 
-APP_DIR=${VLM_APP_DIR:-/data/victron-load-manager}
+APP_DIR=${VLM_APP_DIR:-/data/versatile-load-manager}
 CONFIG_FILE=${VLM_CONFIG:-$APP_DIR/config.yaml}
 SERVICE_DIR=${VLM_SERVICE_DIR:-$APP_DIR/service}
-SERVICE_LINK=${VLM_SERVICE_LINK:-/service/victron-load-manager}
+SERVICE_LINK=${VLM_SERVICE_LINK:-/service/versatile-load-manager}
 export PYTHONPATH="$APP_DIR/vendor:$APP_DIR/src"
 
 usage() {
@@ -36,15 +36,15 @@ case "${1:-}" in
         ;;
     check)
         [ "$#" -eq 1 ] || { usage >&2; exit 2; }
-        exec python3 -m victron_load_manager check --config "$CONFIG_FILE"
+        exec python3 -m versatile_load_manager check --config "$CONFIG_FILE"
         ;;
     faults)
         [ "$#" -eq 1 ] || { usage >&2; exit 2; }
-        exec python3 -m victron_load_manager faults --config "$CONFIG_FILE"
+        exec python3 -m versatile_load_manager faults --config "$CONFIG_FILE"
         ;;
     unlock)
         [ "$#" -eq 2 ] || { usage >&2; exit 2; }
-        exec python3 -m victron_load_manager unlock "$2" --config "$CONFIG_FILE"
+        exec python3 -m versatile_load_manager unlock "$2" --config "$CONFIG_FILE"
         ;;
     -h|--help|"")
         usage

@@ -1,4 +1,4 @@
-"""Run Versatile Load Manager with ``python -m victron_load_manager``."""
+"""Run Versatile Load Manager with ``python -m versatile_load_manager``."""
 
 from .main import main
 

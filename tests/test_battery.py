@@ -2,13 +2,13 @@ import unittest
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 
-from victron_load_manager.battery import (
+from versatile_load_manager.battery import (
     BalanceStatus,
     BatteryPolicy,
     BatteryRuntime,
     compute_charge_current,
 )
-from victron_load_manager.config import BatteryConfig, ScheduleConfig
+from versatile_load_manager.config import BatteryConfig, ScheduleConfig
 
 
 class BatteryPolicyTests(unittest.TestCase):

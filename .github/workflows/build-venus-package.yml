@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          version="$(sed -n 's/^__version__ = "\([^"]*\)"$/\1/p' src/victron_load_manager/__init__.py)"
+          version="$(sed -n 's/^__version__ = "\([^"]*\)"$/\1/p' src/versatile_load_manager/__init__.py)"
           test -n "$version"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
@@ -47,15 +47,15 @@ jobs:
           set -euo pipefail
           tools/build-venus-release.sh --vendor build/vendor
           cd dist
-          sha256sum -c "victron-load-manager-${{ steps.version.outputs.version }}-venus.tar.gz.sha256"
+          sha256sum -c "versatile-load-manager-${{ steps.version.outputs.version }}-venus.tar.gz.sha256"
 
       - name: Upload installation package
         uses: actions/upload-artifact@v4
         with:
-          name: victron-load-manager-${{ steps.version.outputs.version }}-venus
+          name: versatile-load-manager-${{ steps.version.outputs.version }}-venus
           path: |
-            dist/victron-load-manager-${{ steps.version.outputs.version }}-venus.tar.gz
-            dist/victron-load-manager-${{ steps.version.outputs.version }}-venus.tar.gz.sha256
+            dist/versatile-load-manager-${{ steps.version.outputs.version }}-venus.tar.gz
+            dist/versatile-load-manager-${{ steps.version.outputs.version }}-venus.tar.gz.sha256
           if-no-files-found: error
           retention-days: 30
 
@@ -70,7 +70,7 @@ jobs:
       - name: Download verified package
         uses: actions/download-artifact@v4
         with:
-          name: victron-load-manager-${{ needs.build.outputs.version }}-venus
+          name: versatile-load-manager-${{ needs.build.outputs.version }}-venus
           path: dist
 
       - name: Publish GitHub release
@@ -80,8 +80,8 @@ jobs:
         run: |
           set -euo pipefail
           gh release create "$GITHUB_REF_NAME" \
-            dist/victron-load-manager-${{ needs.build.outputs.version }}-venus.tar.gz \
-            dist/victron-load-manager-${{ needs.build.outputs.version }}-venus.tar.gz.sha256 \
+            dist/versatile-load-manager-${{ needs.build.outputs.version }}-venus.tar.gz \
+            dist/versatile-load-manager-${{ needs.build.outputs.version }}-venus.tar.gz.sha256 \
             --repo "$GITHUB_REPOSITORY" \
             --title "VLM ${{ needs.build.outputs.version }}" \
             --generate-notes

@@ -27,8 +27,8 @@ own circuit.
 | `battery.py` | Normal SOC ceiling and periodic solar-only balancing policy |
 | `config.py` | YAML parsing, defaults and consistency validation |
 
-The supervised Venus OS service runs from `/data/victron-load-manager`. Only
-one `run` process may hold `/var/run/victron-load-manager.lock` at a time.
+The supervised Venus OS service runs from `/data/versatile-load-manager`. Only
+one `run` process may hold `/var/run/versatile-load-manager.lock` at a time.
 
 ## Shelly compatibility
 
@@ -43,8 +43,8 @@ deliberately rejected as switchable loads. A managed load also needs usable
 active-power telemetry for start confirmation and continued safe operation.
 
 The automated tests cover Gen1 status fallback and the Gen2+ command path. Live
-commissioning on the reference installation has so far validated only the
-Gen2 `SNSW-001P16EU` and `SPSW-201PE16EU` devices. Gen1 switching is therefore
+commissioning has so far validated the Gen2 `SNSW-001P16EU` and
+`SPSW-201PE16EU` devices. Gen1 switching is therefore
 implemented but not yet proven on physical hardware, and authenticated Shelly
 APIs are not currently supported.
 
@@ -128,11 +128,11 @@ The status line exposes the raw evidence and the resulting interpretation. For
 example:
 
 ```text
-PV limiting: ESS=active, DC=limited [ttyS5:mode=1,power=571W], AC_request=active, AC_limit=confirmed [pv_76_2056527:power=754W,limit=756W,max=5000W]
+PV limiting: ESS=active, DC=limited [charger_1:mode=1,power=600W], AC_request=active, AC_limit=confirmed [inverter_1:power=800W,limit=800W,max=5000W]
 ```
 
 Here both the Victron charger and the Fronius are confirmed limited. By
-contrast, `DC=unknown [ttyS5:mode=0,power=0W]` does not mean that the DC charger
+contrast, `DC=unknown [charger_1:mode=0,power=0W]` does not mean that the DC charger
 is curtailed; it means that no usable conclusion can be drawn from its current
 operating mode.
 
@@ -253,8 +253,8 @@ The file must be preserved during upgrades. `install.sh` preserves an existing
 
 ## External zero-export protection
 
-VLM does not implement the inverter fallback used on the reference site's
-zero-export CACSI installation. That protection is configured independently
+VLM does not implement an inverter-side fallback for zero-export installations.
+That protection is configured independently
 in the Fronius Datamanager and remains part of the surrounding operational
 safety architecture.
 

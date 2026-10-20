@@ -20,7 +20,7 @@ class CerboConfig:
     timeout_s: float = 3.0
     unit_id_scan_start: int = 1
     unit_id_scan_end: int = 247
-    service_cache_file: str = "/var/lib/victron-load-manager/service_ids.json"
+    service_cache_file: str = "/data/versatile-load-manager/service_ids.json"
     system_unit_id: Optional[int] = None
     vebus_unit_id: Optional[int] = None
 
@@ -69,7 +69,7 @@ class ScheduleConfig:
 class TempoConfig:
     enabled: bool = False
     provider: str = "api-couleur-tempo.fr"
-    cache_file: str = "/data/victron-load-manager/tempo.json"
+    cache_file: str = "/data/versatile-load-manager/tempo.json"
     refresh_interval_s: int = 3600
     retry_interval_s: int = 300
     fresh_for_s: int = 7200
@@ -89,7 +89,7 @@ class SolarForecastConfig:
     retry_interval_s: int = 900
     max_age_s: int = 43200
     timeout_s: float = 3.0
-    cache_file: str = "/data/victron-load-manager/solar_forecast.json"
+    cache_file: str = "/data/versatile-load-manager/solar_forecast.json"
 
 
 @dataclass(frozen=True)
@@ -188,8 +188,8 @@ class AppConfig:
     dry_run: bool = False
     control_enabled: bool = False
     managed_loads: Tuple[str, ...] = ()
-    state_file: str = "/data/victron-load-manager/runtime.json"
-    lock_file: str = "/var/run/victron-load-manager.lock"
+    state_file: str = "/data/versatile-load-manager/runtime.json"
+    lock_file: str = "/var/run/versatile-load-manager.lock"
     start_settle_s: int = 30
     status_log_interval_s: int = 60
 
@@ -271,7 +271,7 @@ def load_config(path: Path) -> AppConfig:
         service_cache_file=str(
             cerbo_raw.get(
                 "service_cache_file",
-                "/var/lib/victron-load-manager/service_ids.json",
+                "/data/versatile-load-manager/service_ids.json",
             )
         ),
         system_unit_id=_optional_unit_id(
@@ -465,7 +465,7 @@ def load_config(path: Path) -> AppConfig:
             "'tempo.provider' must be 'api-couleur-tempo.fr'"
         )
     tempo_cache_file = tempo_raw.get(
-        "cache_file", "/data/victron-load-manager/tempo.json"
+        "cache_file", "/data/versatile-load-manager/tempo.json"
     )
     if not isinstance(tempo_cache_file, str) or not tempo_cache_file.strip():
         raise ConfigError("'tempo.cache_file' must be a non-empty path")
@@ -500,7 +500,7 @@ def load_config(path: Path) -> AppConfig:
     if not isinstance(forecast_enabled, bool):
         raise ConfigError("'solar_forecast.enabled' must be true or false")
     forecast_cache_file = forecast_raw.get(
-        "cache_file", "/data/victron-load-manager/solar_forecast.json"
+        "cache_file", "/data/versatile-load-manager/solar_forecast.json"
     )
     if not isinstance(forecast_cache_file, str) or not forecast_cache_file.strip():
         raise ConfigError("'solar_forecast.cache_file' must be a non-empty path")
@@ -886,10 +886,10 @@ def load_config(path: Path) -> AppConfig:
     unknown_managed = sorted(set(managed_loads) - {load.name for load in loads})
     if unknown_managed:
         raise ConfigError("unknown managed load(s): %s" % ", ".join(unknown_managed))
-    state_file = root.get("state_file", "/data/victron-load-manager/runtime.json")
+    state_file = root.get("state_file", "/data/versatile-load-manager/runtime.json")
     if not isinstance(state_file, str) or not state_file.strip():
         raise ConfigError("'state_file' must be a non-empty path")
-    lock_file = root.get("lock_file", "/var/run/victron-load-manager.lock")
+    lock_file = root.get("lock_file", "/var/run/versatile-load-manager.lock")
     if not isinstance(lock_file, str) or not lock_file.strip():
         raise ConfigError("'lock_file' must be a non-empty path")
 

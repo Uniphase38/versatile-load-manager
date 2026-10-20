@@ -26,23 +26,23 @@ stop, or refuse to start?** It complements the
 [architecture](architecture.md), [configuration reference](configuration.md)
 and [troubleshooting guide](troubleshooting.md).
 
-Examples use the reference installation: Victron ESS, Fronius AC-coupled PV,
-Victron DC solar charging, a 90% normal battery ceiling and Shelly-controlled
-loads.
+The numerical examples below are synthetic. They illustrate a Victron ESS with
+AC- and DC-coupled PV and Shelly-controlled loads; they do not describe a
+particular installation.
 
 ## Reading a decision block
 
 A typical status block has four layers:
 
 ```text
-Telemetry: SOC=90.0%, AC=437 W, limit=6500 W, start_limit=6000 W,
-headroom=6063 W, grid_lost=False, surplus_ready=True, deficit=False,
-visible_surplus=-13 W
-PV limiting: ESS=active, DC=limited [ttyS5:mode=1,power=571W],
+Telemetry: SOC=90.0%, AC=500 W, limit=7000 W, start_limit=6400 W,
+headroom=6500 W, grid_lost=False, surplus_ready=True, deficit=False,
+visible_surplus=-20 W
+PV limiting: ESS=active, DC=limited [charger:mode=1,power=600W],
 AC_request=active, AC_limit=confirmed
 Power flow: grid=..., battery=...
 PoolPump: keep_off (window_end_too_close), output=OFF,
-runtime=4.51/6.00 h, projected=437 W
+runtime=4.50/6.00 h, projected=500 W
 ```
 
 Read it in order:
@@ -172,11 +172,12 @@ measured_AC + startup_power_w
     <= max_ac_power_w - ac_start_margin_w
 ```
 
-With a 6500 W limit and 500 W start margin, the guarded ceiling is 6000 W. The
-pool pump reserves its 3000 W startup peak for this check, although steady
-`rated_w` is 1300 W. Failure reports `ac_headroom_insufficient`.
+For example, a 7000 W limit and 600 W start margin produce a guarded ceiling of
+6400 W. A motor load configured with a 2500 W startup peak reserves that full
+peak for this check, even if its steady `rated_w` is lower. Failure reports
+`ac_headroom_insufficient`.
 
-A running load is shed only above the full 6500 W limit. Lower-priority loads
+A running load is shed only above the full configured limit. Lower-priority loads
 are shed first.
 
 ## Why an active load may remain on
@@ -232,13 +233,13 @@ deficit proves that PV can react. Reasons are `target_finish`,
 
 ## `target_progress`: improve an unreachable target
 
-Captured reference case on 20 September:
+Synthetic example:
 
 ```text
-17:58:15  SOC=90.0%, AC=437 W, start_limit=6000 W, headroom=6063 W
-17:58:15  surplus_ready=True, deficit=False, visible_surplus=-13 W
-17:58:15  PoolPump: keep_off (window_end_too_close),
-          runtime=4.51/6.00 h
+17:58:15  SOC=90.0%, AC=500 W, start_limit=6400 W, headroom=6500 W
+17:58:15  surplus_ready=True, deficit=False, visible_surplus=-20 W
+17:58:15  ExampleLoad: keep_off (window_end_too_close),
+          runtime=4.50/6.00 h
 ```
 
 At 17:58, 1.49 h remained. The 6 h target could not fit before the 19:00 grace

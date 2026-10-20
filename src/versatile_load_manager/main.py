@@ -43,7 +43,7 @@ class InstanceAlreadyRunning(RuntimeError):
 class _InstanceLock:
     """Hold one process-wide advisory lock for the lifetime of a run command."""
 
-    def __init__(self, path="/var/run/victron-load-manager.lock"):
+    def __init__(self, path="/var/run/versatile-load-manager.lock"):
         self.path = Path(path)
         self._handle = None
 
@@ -143,7 +143,7 @@ def _shutdown_signal(signum, _frame):
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="victron-load-manager")
+    parser = argparse.ArgumentParser(prog="versatile-load-manager")
     commands = parser.add_subparsers(dest="command", required=True)
     diagnose = commands.add_parser(
         "diagnose", help="test read-only access to Victron services"
@@ -155,7 +155,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     diagnose.add_argument(
         "--cache-file",
-        default="/data/victron-load-manager/service_ids.json",
+        default="/data/versatile-load-manager/service_ids.json",
         help="service-ID cache used without --config",
     )
     check = commands.add_parser(
@@ -171,7 +171,7 @@ def _parser() -> argparse.ArgumentParser:
     load_cycle = commands.add_parser(
         "load-cycle", help="perform one guarded ON/OFF commissioning cycle"
     )
-    load_cycle.add_argument("name", help="configured load name (currently SmallCumulus)")
+    load_cycle.add_argument("name", help="configured load name")
     load_cycle.add_argument("--config", type=Path, required=True)
     load_cycle.add_argument("--confirm", required=True, help="must exactly match load name")
     load_cycle.add_argument("--seconds", type=int, default=5)
@@ -189,7 +189,7 @@ def _parser() -> argparse.ArgumentParser:
     unlock.add_argument("--config", type=Path, required=True)
     unlock.add_argument(
         "--service",
-        default="/service/victron-load-manager",
+        default="/service/versatile-load-manager",
         help=argparse.SUPPRESS,
     )
     unlock.add_argument("--yes", action="store_true", help=argparse.SUPPRESS)
@@ -424,9 +424,7 @@ def _configured_load(config, name: str) -> LoadConfig:
 
 
 def load_cycle(args: argparse.Namespace) -> int:
-    """Commission SmallCumulus with guarded ON, verification and forced OFF."""
-    if args.name != "SmallCumulus":
-        raise ConfigError("commissioning cycle is currently restricted to SmallCumulus")
+    """Commission one configured load with guarded ON, verification and forced OFF."""
     if args.confirm != args.name:
         raise ConfigError("--confirm must exactly match %s" % args.name)
     if not 1 <= args.seconds <= 10:

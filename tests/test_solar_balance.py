@@ -5,11 +5,11 @@ from datetime import datetime, timedelta
 import unittest
 from unittest.mock import patch
 
-from victron_load_manager.battery import BatteryPolicy, BatteryRuntime, BalanceStatus
-from victron_load_manager.config import BatteryConfig, ScheduleConfig, ConfigError, load_config
-from victron_load_manager.controller import LoadController
-from victron_load_manager.modbus import SolarCurtailment
-from victron_load_manager.policy import Action, LoadPolicy, LoadState, Reason, Snapshot
+from versatile_load_manager.battery import BatteryPolicy, BatteryRuntime, BalanceStatus
+from versatile_load_manager.config import BatteryConfig, ScheduleConfig, ConfigError, load_config
+from versatile_load_manager.controller import LoadController
+from versatile_load_manager.modbus import SolarCurtailment
+from versatile_load_manager.policy import Action, LoadPolicy, LoadState, Reason, Snapshot
 from tests import test_config, test_controller
 from tests.test_controller import FakeCerbo, FakeShelly
 

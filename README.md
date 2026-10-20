@@ -33,7 +33,7 @@ power and preserves relay ownership across restarts.
 4. Run `/data/vlm check`.
 5. Observe decisions continuously before enabling one load at a time.
 
-The installer creates `/data/victron-load-manager`, installs a native runit
+The installer creates `/data/versatile-load-manager`, installs a native runit
 service and leaves it stopped. It never overwrites an existing `config.yaml`.
 
 ## Main capabilities
@@ -57,14 +57,14 @@ service and leaves it stopped. It never overwrites an existing `config.yaml`.
 - [Detailed behavior reference](docs/behavior-reference.md)
 - [Troubleshooting and log collection](docs/troubleshooting.md)
 - [Tempo and solar-forecast design](docs/tempo-design.md)
-- [Reference installation: Fronius zero-export fallback](docs/fronius-zero-export-fallback.md)
+- [Fronius zero-export fallback](docs/fronius-zero-export-fallback.md)
 
-## Compatibility note
+## Technical names
 
-The public project name is **Versatile Load Manager**. Existing technical
-identifiers such as `victron-load-manager`, the Python package name, service
-paths and release archive names remain unchanged for compatibility with
-installed systems.
+The project, Python package, installation directory, service and release
+archives consistently use `versatile-load-manager` (or
+`versatile_load_manager` where Python requires underscores). The short
+administrative command remains `/data/vlm`.
 
 ## License
 

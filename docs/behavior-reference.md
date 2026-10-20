@@ -9,9 +9,6 @@ This is an independent community project. It is not an official Victron Energy
 or Shelly product and is not affiliated with or endorsed by either company.
 Victron, Venus OS and Shelly are trademarks of their respective owners.
 
-The existing technical identifiers (`victron-load-manager`, service paths and
-archive names) are retained for compatibility with installed systems.
-
 This document preserves the detailed behavior and safety notes that previously lived in the project README. For the project overview and first installation path, start with the [README](../README.md).
 
 ## Documentation
@@ -22,7 +19,7 @@ This document preserves the detailed behavior and safety notes that previously l
 - [Troubleshooting and log collection](docs/troubleshooting.md)
 - [Tempo and solar-forecast design](docs/tempo-design.md)
 - [Daily forecast comparison with VRM](docs/forecast-daily-report.md)
-- [Reference installation: Fronius zero-export fallback](docs/fronius-zero-export-fallback.md)
+- [Fronius zero-export fallback](docs/fronius-zero-export-fallback.md)
 
 ## Venus OS installation
 
@@ -45,7 +42,7 @@ For a first installation, start with the
 required installation facts in plain language and keeps all commands disabled
 until the operator deliberately enables them.
 
-The installer creates `/data/victron-load-manager`, installs a native supervised
+The installer creates `/data/versatile-load-manager`, installs a native supervised
 service, and leaves it stopped. It never overwrites an existing `config.yaml`.
 
 When dependencies have been staged in `vendor/`:
@@ -58,21 +55,21 @@ chmod +x install.sh
 For an existing external vendor directory:
 
 ```sh
-VLM_VENDOR_SOURCE=/data/victron-load-manager-test/vendor ./install.sh
+VLM_VENDOR_SOURCE=/data/versatile-load-manager-test/vendor ./install.sh
 ```
 
-Review `/data/victron-load-manager/config.yaml` and keep
+Review `/data/versatile-load-manager/config.yaml` and keep
 `control_enabled: false` for the first H24 observation. Then start and inspect:
 
 ```sh
 /data/vlm enable
-tail -f /data/victron-load-manager/logs/current
+tail -f /data/log/versatile-load-manager/current
 ```
 
 Stop temporarily (automatic start remains enabled for the next reboot) with:
 
 ```sh
-svc -d /service/victron-load-manager
+svc -d /service/versatile-load-manager
 ```
 
 Stop persistently with:
@@ -179,7 +176,7 @@ window.
 
 ## Process and relay ownership
 
-The `run` command holds `/var/run/victron-load-manager.lock` for its full
+The `run` command holds `/var/run/versatile-load-manager.lock` for its full
 lifetime. A second manual or supervised launch exits before opening Modbus or
 contacting a Shelly. Startup logs include the package version and the absolute
 source path so a copied test tree is immediately distinguishable from the
@@ -314,7 +311,7 @@ battery:
   balance_interval_days: 30
   balance_hold_s: 3600
   # Optional bootstrap from an existing controller's last successful cycle.
-  # balance_reference_date: "2026-08-18"
+  # balance_reference_date: "2026-01-01"
 ```
 
 The normal controller is deliberately binary: below 90%, it writes the
@@ -326,10 +323,10 @@ time. The Pylontech BMS remains responsible for alternating or reducing the
 actual current while its cells equalise.
 
 This user ceiling protects shared wiring and over-current protection, not only
-the battery modules. On the reference installation, the standard Pylontech
-battery leads and 125 A fuse require keeping the existing 100 A DVCC limit even
-though six US5000 modules could collectively accept more current. Never derive
-this setting solely from the aggregate battery capability.
+the battery modules. Configure it from the weakest permitted element in the
+complete shared DC path: cable, connector, busbar, fuse or other protection.
+Never derive it solely from the aggregate capability advertised by the battery
+modules.
 
 When a cycle is due, VLM waits until the normal SOC ceiling has been reached
 and for confirmed PV curtailment inside the solar window before raising the
