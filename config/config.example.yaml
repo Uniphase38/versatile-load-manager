@@ -5,7 +5,7 @@ cerbo:
   timeout_s: 3
   unit_id_scan_start: 1
   unit_id_scan_end: 247
-  service_cache_file: /var/lib/victron-load-manager/service_ids.json
+  service_cache_file: /data/versatile-load-manager/service_ids.json
 
   # Keep "auto" for portable installs. Explicit IDs remain available for
   # diagnostics or unusual systems.
@@ -85,7 +85,7 @@ schedule:
 tempo:
   enabled: false
   provider: api-couleur-tempo.fr
-  cache_file: /data/victron-load-manager/tempo.json
+  cache_file: /data/versatile-load-manager/tempo.json
   refresh_interval_s: 3600
   retry_interval_s: 300
   fresh_for_s: 7200
@@ -107,7 +107,7 @@ solar_forecast:
   retry_interval_s: 900
   max_age_s: 43200
   timeout_s: 3
-  cache_file: /data/victron-load-manager/solar_forecast.json
+  cache_file: /data/versatile-load-manager/solar_forecast.json
 
 # Communication watchdog for safety-critical Cerbo telemetry. New starts are
 # blocked after any error. VLM enters SAFE after three consecutive failures,
@@ -146,10 +146,10 @@ managed_loads:
   - MainCumulus
   - SmallCumulus
   - PoolPump
-state_file: /data/victron-load-manager/runtime.json
+state_file: /data/versatile-load-manager/runtime.json
 # Process lock. Keep this default on Venus OS; an unprivileged PC test can use
-# /tmp/victron-load-manager-pc.lock in its separate observation configuration.
-lock_file: /var/run/victron-load-manager.lock
+# /tmp/versatile-load-manager-pc.lock in its separate observation configuration.
+lock_file: /var/run/versatile-load-manager.lock
 
 loads:
   - name: MainCumulus
