@@ -27,8 +27,8 @@ own circuit.
 | `battery.py` | Normal SOC ceiling and periodic solar-only balancing policy |
 | `config.py` | YAML parsing, defaults and consistency validation |
 
-The supervised Venus OS service runs from `/data/victron-load-manager`. Only
-one `run` process may hold `/var/run/victron-load-manager.lock` at a time.
+The supervised Venus OS service runs from `/data/versatile-load-manager`. Only
+one `run` process may hold `/var/run/versatile-load-manager.lock` at a time.
 
 ## Shelly compatibility
 
