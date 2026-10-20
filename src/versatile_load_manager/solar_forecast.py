@@ -128,7 +128,7 @@ class SolarForecastClient:
 
     def _refresh(self, now: datetime) -> None:
         try:
-            request = Request(self._url(), headers={"User-Agent": "victron-load-manager/0.1"})
+            request = Request(self._url(), headers={"User-Agent": "versatile-load-manager/0.1"})
             with self._opener(request, timeout=self.config.timeout_s) as response:
                 payload = json.loads(response.read().decode("utf-8"))
             hourly = self._parse_hourly(payload)

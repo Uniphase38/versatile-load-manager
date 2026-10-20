@@ -1,6 +1,6 @@
 import unittest
 
-from victron_load_manager.min_soc_control import MinSocOwnership, plan_min_soc_action
+from versatile_load_manager.min_soc_control import MinSocOwnership, plan_min_soc_action
 
 
 class MinSocOwnershipTests(unittest.TestCase):

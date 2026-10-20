@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from victron_load_manager.config import (
+from versatile_load_manager.config import (
     ConfigError, load_config, runtime_period_month,
 )
 
@@ -41,7 +41,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(config.watchdog.safe_after_errors, 3)
         self.assertEqual(config.watchdog.recovery_cycles, 2)
         self.assertEqual(config.watchdog.restart_after_errors, 10)
-        self.assertEqual(config.lock_file, "/var/run/victron-load-manager.lock")
+        self.assertEqual(config.lock_file, "/var/run/versatile-load-manager.lock")
         self.assertFalse(config.tempo.enabled)
         self.assertEqual(config.tempo.provider, "api-couleur-tempo.fr")
         self.assertEqual(config.tempo.refresh_interval_s, 3600)

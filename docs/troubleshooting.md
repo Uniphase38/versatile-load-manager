@@ -6,8 +6,8 @@ see [Understanding VLM decisions](understanding-vlm-decisions.md).
 ## First checks
 
 ```sh
-svstat /service/victron-load-manager
-tail -f /data/victron-load-manager/logs/current
+svstat /service/versatile-load-manager
+tail -f /data/log/versatile-load-manager/current
 /data/vlm faults
 ```
 
@@ -20,13 +20,13 @@ running.
 ```sh
 # Stop gracefully. Owned ON relays are switched off and enabled DVCC control
 # restores max_charge_current_a as a fail-open value.
-svc -d /service/victron-load-manager
+svc -d /service/versatile-load-manager
 
 # Start the installed service.
-svc -u /service/victron-load-manager
+svc -u /service/versatile-load-manager
 
 # Restart after a configuration or source update.
-svc -t /service/victron-load-manager
+svc -t /service/versatile-load-manager
 ```
 
 Never launch a second manual H24 process alongside the supervised service. The
@@ -50,8 +50,8 @@ The full module CLI also provides commissioning commands. Display its exact
 arguments before use:
 
 ```sh
-PYTHONPATH=/data/victron-load-manager/vendor:/data/victron-load-manager/src \
-  python3 -m victron_load_manager --help
+PYTHONPATH=/data/versatile-load-manager/vendor:/data/versatile-load-manager/src \
+  python3 -m versatile_load_manager --help
 ```
 
 ## Common decision reasons
@@ -156,14 +156,14 @@ Real writes additionally require `battery.control_enabled: true` and
 ## Collecting a soak-test archive
 
 The installed logger uses rotated files under
-`/data/victron-load-manager/logs`. Ensure retention covers the intended test
+`/data/log/versatile-load-manager`. Ensure retention covers the intended test
 period before starting a long soak. For a two-week investigation, 50 MB is a
 reasonable conservative allocation for the current status volume:
 
 ```sh
 sed -i 's/s1000000 n10/s5000000 n10/' \
-  /data/victron-load-manager/service/log/run
-svc -t /service/victron-load-manager/log
+  /data/versatile-load-manager/service/log/run
+svc -t /service/versatile-load-manager/log
 ```
 
 After the observation period, collect logs together with the state and the
@@ -171,7 +171,10 @@ configuration that produced them:
 
 ```sh
 tar -czf /data/vlm-soak.tar.gz \
-  -C /data/victron-load-manager logs runtime.json config.yaml
+  -C /data \
+  versatile-load-manager/runtime.json \
+  versatile-load-manager/config.yaml \
+  log/versatile-load-manager
 ```
 
 The archive may contain hostnames, addresses and operational history. Review
@@ -179,8 +182,8 @@ its destination before sharing it.
 
 ## Fronius fallback verification
 
-The reference installation uses inverter-side dynamic power reduction as a
-defence against loss of Cerbo Modbus commands. The complete Datamanager
+An optional inverter-side dynamic power reduction can defend against loss of
+Cerbo Modbus commands. The complete Datamanager
 configuration, priority order and live-test procedure are documented in
 [Fronius zero-export fallback](fronius-zero-export-fallback.md).
 This cannot be validated from a VLM log alone. Test both transitions under
@@ -192,6 +195,5 @@ safe site conditions:
 3. restore communication;
 4. verify that Modbus automatically regains priority and normal regulation.
 
-This test has been completed successfully on the reference installation; it
-must be repeated after material inverter, meter or network configuration
-changes.
+Record local acceptance evidence and repeat the test after material inverter,
+meter or network configuration changes.

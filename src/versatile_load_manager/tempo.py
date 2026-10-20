@@ -95,7 +95,7 @@ class ApiCouleurTempoProvider:
     def _get(self, endpoint: str) -> object:
         request = Request(self.base_url + endpoint,
                           headers={"Accept": "application/json",
-                                   "User-Agent": "victron-load-manager"})
+                                   "User-Agent": "versatile-load-manager"})
         try:
             with self._opener(request, timeout=self.timeout_s) as response:
                 return json.loads(response.read().decode("utf-8"))

@@ -75,15 +75,15 @@ while :; do
     data_free_kb=$(df -Pk /data 2>/dev/null | awk 'NR==2 {print $4}')
 
     vlm_pid= vlm_stat= vlm_rss_kb= vlm_threads=
-    if [ -r /var/run/victron-load-manager.lock ]; then
-        IFS= read -r candidate < /var/run/victron-load-manager.lock || true
+    if [ -r /var/run/versatile-load-manager.lock ]; then
+        IFS= read -r candidate < /var/run/versatile-load-manager.lock || true
         case "$candidate" in
             ''|*[!0-9]*) ;;
             *)
                 if [ -r "/proc/$candidate/stat" ]; then
                     cmdline=$(tr '\000' ' ' < "/proc/$candidate/cmdline" 2>/dev/null)
                     case "$cmdline" in
-                        *victron_load_manager*run*)
+                        *versatile_load_manager*run*)
                             vlm_pid=$candidate
                             IFS= read -r vlm_stat < "/proc/$candidate/stat" || true
                             while read -r key value unit rest; do

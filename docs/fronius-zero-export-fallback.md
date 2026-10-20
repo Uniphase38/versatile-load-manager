@@ -57,21 +57,21 @@ case and is not validated by the Cerbo-network test.
 ## Datamanager dynamic reduction
 
 Open **Settings > DNO Editor**, unfold **Dynamic power reduction**, and enter
-the settings validated on the reference installation:
+values independently validated for the installation:
 
 | Setting | Value |
 | --- | --- |
 | Power reduction | `Limit Entire System` |
-| Total DC power of the installation | `6000 W` |
+| Total DC power of the installation | site-specific Fronius-connected DC nameplate power |
 | Export Limit Protection (Hard Limit Trip) | Disabled |
 | Export Limiting Control (Soft Limit) | Enabled |
 | Maximum Grid Feed-In Power | `0 %` |
 | Reduce inverter power to 0% if meter connection is cut | Disabled |
 
-The `6000 W` value is the PV DC power connected to this Fronius: two MPPTs at
-approximately 3 kWp each. It is neither the 5 kW AC output ceiling nor the
-10 kWp total site array, because the remaining 4 kWp is connected to the
-Victron MPPT. Save the block with its confirmation check mark.
+Use only the DC nameplate power connected to the Fronius covered by this
+Datamanager setting. Do not substitute its AC output ceiling or the total site
+PV power when other arrays are connected to separate Victron MPPTs. Save the
+block with its confirmation check mark.
 
 `0 %` is a zero **grid feed-in** target, not necessarily an absolute 0 W
 inverter-output target. When valid local consumption and meter data remain
@@ -106,8 +106,7 @@ Perform the test while directly observing both Fronius output and grid flow:
 5. Restore the network and confirm that Modbus automatically regains priority
    without a Datamanager or inverter restart.
 
-On the reference installation, a live test reduced Fronius output from about
-1500 W to 25 W after 120 seconds. After network restoration, Modbus resumed
-normal regulation automatically. This result is installation-specific: repeat
-the complete test after any material inverter, meter, firmware, network or DNO
-editor change.
+Record the observed transition time, inverter output and grid flow for the
+installation. Repeat the complete test after any material inverter, meter,
+firmware, network or DNO editor change; example measurements from another site
+are not acceptance evidence.

@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta, timezone
 
 import pytest
 
-from victron_load_manager.tempo import (ApiCouleurTempoProvider, TempoCache, TempoColour,
+from versatile_load_manager.tempo import (ApiCouleurTempoProvider, TempoCache, TempoColour,
                    TempoError, TempoObserver, cache_status)
 
 

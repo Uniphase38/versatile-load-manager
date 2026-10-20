@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 
-from victron_load_manager.hc_balance import RequiredLoad, plan_hc_balance
+from versatile_load_manager.hc_balance import RequiredLoad, plan_hc_balance
 
 
 class HcBalancePlannerTests(unittest.TestCase):

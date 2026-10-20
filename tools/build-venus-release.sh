@@ -55,10 +55,10 @@ esac
 python3 "$SCRIPT_DIR/validate_vendor.py" "$VENDOR_DIR"
 
 VERSION=$(sed -n 's/^__version__ = "\([^"]*\)"$/\1/p' \
-    "$PROJECT_DIR/src/victron_load_manager/__init__.py")
+    "$PROJECT_DIR/src/versatile_load_manager/__init__.py")
 [ -n "$VERSION" ] || { echo "ERROR: unable to read package version" >&2; exit 1; }
 
-PACKAGE_NAME=victron-load-manager-$VERSION-venus
+PACKAGE_NAME=versatile-load-manager-$VERSION-venus
 BUILD_DIR=$(mktemp -d "${TMPDIR:-/tmp}/vlm-release.XXXXXX")
 trap 'rm -rf "$BUILD_DIR"' EXIT HUP INT TERM
 STAGE=$BUILD_DIR/$PACKAGE_NAME

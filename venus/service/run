@@ -4,4 +4,4 @@ exec 2>&1
 APP_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 export PYTHONPATH="$APP_DIR/vendor:$APP_DIR/src"
 
-exec python3 -m victron_load_manager run --config "$APP_DIR/config.yaml"
+exec python3 -m versatile_load_manager run --config "$APP_DIR/config.yaml"

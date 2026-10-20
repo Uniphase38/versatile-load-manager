@@ -6,7 +6,7 @@ the battery charge limit.
 
 ## Release package
 
-Use the `victron-load-manager-VERSION-venus.tar.gz` file published with a
+Use the `versatile-load-manager-VERSION-venus.tar.gz` file published with a
 release, not GitHub's automatically generated source archive. The Venus package
 contains the checked offline Python dependencies in `vendor/`; the source
 archive does not.
@@ -19,7 +19,7 @@ It does not need Python, Git, `pip` or a development environment.
 In a recent PowerShell:
 
 ```powershell
-scp .\victron-load-manager-VERSION-venus.tar.gz root@CERBO_ADDRESS:/data/
+scp .\versatile-load-manager-VERSION-venus.tar.gz root@CERBO_ADDRESS:/data/
 ssh root@CERBO_ADDRESS
 ```
 
@@ -28,8 +28,8 @@ WinSCP may be used instead of `scp` for the file transfer.
 ### Transfer from Linux or macOS
 
 ```sh
-scp victron-load-manager-VERSION-venus.tar.gz root@CERBO_ADDRESS:/data/
-scp victron-load-manager-VERSION-venus.tar.gz.sha256 root@CERBO_ADDRESS:/data/
+scp versatile-load-manager-VERSION-venus.tar.gz root@CERBO_ADDRESS:/data/
+scp versatile-load-manager-VERSION-venus.tar.gz.sha256 root@CERBO_ADDRESS:/data/
 ssh root@CERBO_ADDRESS
 ```
 
@@ -40,9 +40,9 @@ and is identical for all three computer platforms.
 
 ```sh
 cd /data
-sha256sum -c victron-load-manager-VERSION-venus.tar.gz.sha256
-tar -xzf victron-load-manager-VERSION-venus.tar.gz
-cd victron-load-manager-VERSION-venus
+sha256sum -c versatile-load-manager-VERSION-venus.tar.gz.sha256
+tar -xzf versatile-load-manager-VERSION-venus.tar.gz
+cd versatile-load-manager-VERSION-venus
 ```
 
 Do not continue if the checksum is not reported as `OK`. The final `cd`
@@ -74,13 +74,15 @@ without replacing the production service:
 VLM_TARGET_DIR=/data/vlm-install-test \\
 VLM_SERVICE_LINK=/service/vlm-install-test \\
 VLM_COMMAND_LINK=/data/vlm-test \\
+VLM_LOG_DIR=/data/log/vlm-install-test \\
 VLM_UPDATE_RC_LOCAL=0 \\
 ./install.sh
 ```
 
 This creates a separate service and command, leaves the service down and does
 not make the test links persistent in `/data/rc.local`. The test service must
-remain stopped while the production VLM is running.
+remain stopped while the production VLM is running. Legacy migration is
+automatically disabled when non-default target or service paths are used.
 
 ## Normal installation
 
@@ -91,12 +93,24 @@ chmod +x install.sh
 ./install.sh
 ```
 
-The installer copies VLM to `/data/victron-load-manager`, preserves an existing
+The installer copies VLM to `/data/versatile-load-manager`, preserves an existing
 `config.yaml` and leaves the service stopped.
+
+### Migration from the former technical name
+
+If `/data/victron-load-manager/config.yaml` exists, the installer treats it as
+a legacy installation. It stops the former service, copies the configuration
+and known persistent state files, rewrites only the former standard paths, and
+installs the new service in the stopped state. The old installation directory
+is retained as a rollback copy; it is never deleted automatically.
+
+After installation, run `/data/vlm check` and compare the migrated configuration
+before enabling the new service. Once operation has been validated, the legacy
+directory may be archived or removed manually.
 
 ## First configuration: keep all locks closed
 
-Edit `/data/victron-load-manager/config.yaml`. During commissioning, retain:
+Edit `/data/versatile-load-manager/config.yaml`. During commissioning, retain:
 
 ```yaml
 dry_run: true
@@ -112,9 +126,9 @@ battery:
 For a shorter starting file, copy the validated minimal template before editing:
 
 ```sh
-cp /data/victron-load-manager/config/config.minimal.yaml \
-  /data/victron-load-manager/config.yaml
-chmod 600 /data/victron-load-manager/config.yaml
+cp /data/versatile-load-manager/config/config.minimal.yaml \
+  /data/versatile-load-manager/config.yaml
+chmod 600 /data/versatile-load-manager/config.yaml
 ```
 
 The minimal template contains one disabled-by-permission example load and marks
@@ -144,7 +158,7 @@ is reported as a switch rather than a meter or unreachable device.
 
 ```sh
 /data/vlm enable
-tail -f /data/victron-load-manager/logs/current
+tail -f /data/log/versatile-load-manager/current
 ```
 
 Leave VLM in observation mode long enough to see its decisions under real sun,
@@ -154,7 +168,7 @@ A temporary safe stop, which still allows automatic restart after the next
 Cerbo reboot, is:
 
 ```sh
-svc -d /service/victron-load-manager
+svc -d /service/versatile-load-manager
 ```
 
 To stop VLM and keep it disabled across reboots:

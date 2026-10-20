@@ -1,5 +1,9 @@
 #!/bin/sh
 APP_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
-LOG_DIR=$APP_DIR/logs
+if [ -r "$APP_DIR/log-dir" ]; then
+    IFS= read -r LOG_DIR < "$APP_DIR/log-dir"
+else
+    LOG_DIR=/data/log/versatile-load-manager
+fi
 mkdir -p "$LOG_DIR"
 exec multilog s1000000 n10 "$LOG_DIR"

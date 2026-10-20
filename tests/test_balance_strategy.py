@@ -1,11 +1,11 @@
 import unittest
 from datetime import datetime, timedelta
 
-from victron_load_manager.balance_strategy import (
+from versatile_load_manager.balance_strategy import (
     HcCatchupDecision,
     decide_hc_catchup,
 )
-from victron_load_manager.tempo import TempoColour
+from versatile_load_manager.tempo import TempoColour
 
 
 class HcCatchupStrategyTests(unittest.TestCase):

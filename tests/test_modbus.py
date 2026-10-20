@@ -5,8 +5,8 @@ from types import ModuleType
 from pathlib import Path
 from unittest.mock import patch
 
-from victron_load_manager.config import CerboConfig
-from victron_load_manager.modbus import (
+from versatile_load_manager.config import CerboConfig
+from versatile_load_manager.modbus import (
     AcPvLimit,
     CerboModbus,
     DcPvState,

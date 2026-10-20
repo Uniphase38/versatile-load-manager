@@ -60,8 +60,9 @@ The implemented first stage requests hourly global tilted irradiance for one
 configured orientation and converts it to whole-installation energy with an
 effective peak power and a fixed performance ratio. This deliberately avoids
 per-inverter modelling, VRM history, a database and automatic calibration.
-The reference installation uses an effective 8 kWp for its co-oriented AC- and
-DC-coupled arrays.
+The effective peak power is installation-specific and represents all arrays
+covered by the configured orientation. It must be supplied explicitly rather
+than inferred from inverter names or example data.
 
 Every forecast snapshot includes:
 
