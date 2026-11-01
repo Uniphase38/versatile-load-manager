@@ -16,6 +16,7 @@ from versatile_load_manager.modbus import (
     REG_AC_POWER,
     REG_DVCC_MAX_CHARGE,
     REG_GRID_LOST,
+    REG_AC_INPUT_SOURCE,
     REG_MIN_SOC,
     REG_SOC,
     ServiceDiscovery,
@@ -308,6 +309,31 @@ class HybridDiscoveryTests(unittest.TestCase):
             self.assertEqual(
                 cerbo.resolve_services(), ServiceUnitIds(system=100, vebus=227)
             )
+
+    def test_grid_loss_uses_system_source_register(self):
+        values = dict(self.VALUES)
+        values[(100, REG_AC_INPUT_SOURCE)] = 240
+        client = FakeClient(values)
+        cerbo = CerboModbus(CerboConfig(host="localhost"), client=client)
+        cerbo.unit_ids = ServiceUnitIds(system=100, vebus=227)
+        self.assertTrue(cerbo.read_grid_lost())
+        values[(100, REG_AC_INPUT_SOURCE)] = 1
+        client.values[(100, REG_AC_INPUT_SOURCE)] = 1
+        self.assertFalse(cerbo.read_grid_lost())
+
+    def test_grid_loss_unknown_source_fails_closed(self):
+        for source in (0, 4, 255):
+            client = FakeClient({(100, REG_AC_INPUT_SOURCE): source})
+            cerbo = CerboModbus(CerboConfig(host="localhost"), client=client)
+            cerbo.unit_ids = ServiceUnitIds(system=100, vebus=227)
+            with self.assertRaises(ModbusError):
+                cerbo.read_grid_lost()
+
+    def test_grid_loss_unreadable_source_raises(self):
+        cerbo = CerboModbus(CerboConfig(host="localhost"), client=FakeClient({}))
+        cerbo.unit_ids = ServiceUnitIds(system=100, vebus=227)
+        with self.assertRaises(ModbusError):
+            cerbo.read_grid_lost()
 
     def test_min_soc_write_scales_percent_and_validates_range(self):
         client = FakeClient(dict(self.VALUES))

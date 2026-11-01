@@ -12,7 +12,8 @@ from .config import CerboConfig
 log = logging.getLogger(__name__)
 
 REG_SOC = 30
-REG_GRID_LOST = 61
+REG_GRID_LOST = 61  # VE.Bus alarm; not reliable for grid presence
+REG_AC_INPUT_SOURCE = 826  # System /Ac/ActiveIn/Source
 REG_AC_POWER = 817
 REG_DVCC_MAX_CHARGE = 2705
 REG_PV_LIMITER_ACTIVE = 2709
@@ -549,7 +550,18 @@ class CerboModbus:
         )
 
     def read_grid_lost(self) -> bool:
-        return self._read_raw(self._require_ids().vebus, REG_GRID_LOST) == 2
+        """True when no AC input is active; fail closed on unknown source codes.
+
+        System register 826 mirrors /Ac/ActiveIn/Source. Observed on Cerbo:
+        1 (grid) -> 240 (islanded) -> 1 (grid).
+        VE.Bus alarm register 61 remained 0 during confirmed outages.
+        """
+        source = self._read_raw(self._require_ids().system, REG_AC_INPUT_SOURCE)
+        if source == 240:
+            return True
+        if source in (1, 2, 3):  # grid, generator, shore power
+            return False
+        raise ModbusError("unexpected AC input source %s (system register 826)" % source)
 
     def read_solar_curtailment(self) -> SolarCurtailment:
         """Return local D-Bus PV limiting evidence, or unknown off-device."""
